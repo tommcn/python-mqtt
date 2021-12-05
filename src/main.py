@@ -1,5 +1,8 @@
 import argparse
 
+from log import init_logging
+
+init_logging()
 from server import runserver
 
 parser = argparse.ArgumentParser(description="MQTT server")
