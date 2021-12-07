@@ -7,11 +7,12 @@ LOGGING_CONFIG = {
         "standard": {
             "format": "%(asctime)s [%(levelname)s] %(name)s (%(threadName)s): %(message)s"
         },
+        "simple": {"format": "[%(levelname)s] %(message)s"},
     },
     "handlers": {
         "default": {
             "level": "DEBUG",
-            "formatter": "standard",
+            "formatter": "simple",  # Change to "standard" for more verbose logging
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",
         },

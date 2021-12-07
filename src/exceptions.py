@@ -1,0 +1,2 @@
+class MalformedPacketError(Exception):
+    pass
