@@ -25,3 +25,18 @@ class MQTTControlPacketFlags(Enum):
     QOS_1 = 0x02
     QOS_2 = 0x04
     DUP = 0x08
+
+
+class MQTTConnectReasonCode(Enum):
+    """
+    Reason codes for the CONNACK packet
+    Not an exhaustive list
+    Ref: https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901079
+    """
+
+    SUCCESS = 0x00
+    UNSPECIFIEDERROR = 0x80
+    MALFORMEDPACKET = 0x81
+    PROTOCOLERROR = 0x82
+    IMPLEMENTATIONSPECIFICERROR = 0x83
+    UNSUPPORTEDPROTOCOLVERSION = 0x84
