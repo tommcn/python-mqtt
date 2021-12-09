@@ -1,10 +1,9 @@
 import logging
 import socketserver
 import threading
-from typing import Protocol
 
-from connection import ClientConnection
 import constants as consts
+from connection import ClientConnection
 from exceptions import MalformedPacketError, ProtocolError
 
 log = logging.getLogger(__name__)
@@ -12,7 +11,6 @@ log = logging.getLogger(__name__)
 lock = threading.Lock()
 connections = {}  # Shhh
 
-# [DEBUG] Payload: b'\x00\x0cclient_ad82f'
 
 class TCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
@@ -46,7 +44,9 @@ class TCPHandler(socketserver.BaseRequestHandler):
                         log.debug("Correct protocol name")
                     else:
                         log.error("Incorrect protocol name")
-                        raise ProtocolError(f"Incorrect protocol name provided: {protocolName}")
+                        raise ProtocolError(
+                            f"Incorrect protocol name provided: {protocolName}"
+                        )
 
                     protocolVersion = remaining[6]
                     log.debug("Protocol version: %s", protocolVersion)
@@ -56,7 +56,9 @@ class TCPHandler(socketserver.BaseRequestHandler):
                         log.debug("Supported protocol version")
                     else:
                         log.error("Unsupported protocol version")
-                        raise ProtocolError(f"Unsupported protocol version: {protocolVersion}")
+                        raise ProtocolError(
+                            f"Unsupported protocol version: {protocolVersion}"
+                        )
 
                     connectFlags = remaining[7]
                     log.debug("Connect flags: %s", connectFlags)
@@ -80,23 +82,27 @@ class TCPHandler(socketserver.BaseRequestHandler):
                     if clientIdentifierLength == 0:  # Again, more inconsistencies
                         clientIdentifierLength = payload[1]
                         clientIdentifier = str(
-                            payload[2: clientIdentifierLength + 2], encoding="UTF-8"
+                            payload[2 : clientIdentifierLength + 2], encoding="UTF-8"
                         )
                     else:
                         clientIdentifier = str(
-                            payload[1: clientIdentifierLength + 1], encoding="UTF-8"
+                            payload[1 : clientIdentifierLength + 1], encoding="UTF-8"
                         )
 
                     log.info("Client identifier: %s", clientIdentifier)
 
                     # probably need to adjust for more payload fields
-                    if len(payload) == clientIdentifierLength + 1 or len(payload) == clientIdentifierLength + 2:
+                    if (
+                        len(payload) == clientIdentifierLength + 1
+                        or len(payload) == clientIdentifierLength + 2
+                    ):
                         log.debug("Payload ended")
                         conn = ClientConnection(self.request, clientIdentifier)
                         with lock:
                             connections[conn.clientIdentifier] = conn
                         conn.CONNACK(consts.MQTTConnectReasonCode.SUCCESS)
                         # somewhere here we send a CONNACK
+
 
 class Server(socketserver.ThreadingTCPServer):
     daemon_threads = True

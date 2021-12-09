@@ -35,11 +35,6 @@ class CONNACK(MQTTPacket):
             + len(connectReasonCode.to_bytes(1, "big"))
             + len(properties.to_bytes(1, "big"))
         )
-        print(remainingLength)
-        print(sessionPresent.to_bytes(1, "big"))
-        print(
-            (firstbyte, remainingLength, sessionPresent, connectReasonCode, properties)
-        )
         return bytearray(
             (firstbyte, remainingLength, sessionPresent, connectReasonCode, properties)
         )
