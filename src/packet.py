@@ -38,3 +38,46 @@ class CONNACK(MQTTPacket):
         return bytearray(
             (firstbyte, remainingLength, sessionPresent, connectReasonCode, properties)
         )
+
+
+class PINGRESP(MQTTPacket):
+    def asBytes(self):
+        return bytearray((c.MQTTControlPacketType.PINGRESP.value << 4, 0))
+
+
+class SUBACK(MQTTPacket):
+    def __init__(self, packetIdentifier, returnCode):
+        self.packetIdentifier = packetIdentifier
+        self.returnCode = returnCode
+
+    def asBytes(self):
+        packetType = c.MQTTControlPacketType.SUBACK
+        firstbyte = packetType.value << 4
+        remainingLength = None
+        packetIdentifier = self.packetIdentifier + 4
+        properties = 0
+        propertiesLength = 0
+        reason = self.returnCode  # 0x00 for QoS 0
+        remainingLength = (
+            len(propertiesLength.to_bytes(1, "big"))
+            + len(packetIdentifier.to_bytes(2, "big"))
+            + len(reason.to_bytes(1, "big"))
+        )
+        print(
+            firstbyte,
+            remainingLength,
+            (packetIdentifier & 0xFF),
+            ((packetIdentifier >> 8) & 0xFF),
+            propertiesLength,
+            reason,
+        )
+        return bytearray(
+            (
+                firstbyte,
+                remainingLength,
+                (packetIdentifier & 0xFF),
+                ((packetIdentifier >> 8) & 0xFF),
+                propertiesLength,
+                reason,
+            )
+        )

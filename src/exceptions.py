@@ -4,3 +4,7 @@ class MalformedPacketError(Exception):
 
 class ProtocolError(Exception):
     pass
+
+
+class ImplementationSpecificError(Exception):
+    pass
