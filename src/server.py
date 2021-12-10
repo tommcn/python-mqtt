@@ -4,7 +4,8 @@ import threading
 
 import constants as consts
 from connection import ClientConnection
-from exceptions import ImplementationSpecificError, MalformedPacketError, ProtocolError
+from exceptions import (ImplementationSpecificError, MalformedPacketError,
+                        ProtocolError)
 
 log = logging.getLogger(__name__)
 
@@ -53,9 +54,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
             log.debug("Correct protocol name")
         else:
             log.error("Incorrect protocol name")
-            raise ProtocolError(
-                            f"Incorrect protocol name provided: {protocolName}"
-                        )
+            raise ProtocolError(f"Incorrect protocol name provided: {protocolName}")
 
         protocolVersion = remaining[6]
         log.debug("Protocol version: %s", protocolVersion)
@@ -65,17 +64,15 @@ class TCPHandler(socketserver.BaseRequestHandler):
             log.debug("Supported protocol version")
         else:
             log.error("Unsupported protocol version")
-            raise ProtocolError(
-                            f"Unsupported protocol version: {protocolVersion}"
-                        )
+            raise ProtocolError(f"Unsupported protocol version: {protocolVersion}")
 
         connectFlags = remaining[7]
         log.debug("Connect flags: %s", connectFlags)
         if (connectFlags & 0x01) == 0x01:
             log.error("Reserved bit set")
             raise MalformedPacketError(
-                            f"Violation of MQTT protocol: reserved bit set in connect flags ({connectFlags})"
-                        )
+                f"Violation of MQTT protocol: reserved bit set in connect flags ({connectFlags})"
+            )
 
         keepAlive = remaining[8] * 256 + remaining[9]
         log.debug("Keep alive: %ss", keepAlive)
@@ -91,27 +88,27 @@ class TCPHandler(socketserver.BaseRequestHandler):
         if clientIdentifierLength == 0:  # Again, more inconsistencies
             clientIdentifierLength = payload[1]
             clientIdentifier = str(
-                            payload[2 : clientIdentifierLength + 2], encoding="UTF-8"
-                        )
+                payload[2 : clientIdentifierLength + 2], encoding="UTF-8"
+            )
         else:
             clientIdentifier = str(
-                            payload[1 : clientIdentifierLength + 1], encoding="UTF-8"
-                        )
+                payload[1 : clientIdentifierLength + 1], encoding="UTF-8"
+            )
 
         log.info("Client identifier: %s", clientIdentifier)
         self.clientIdentifier = clientIdentifier
 
-                    # probably need to adjust for more payload fields
+        # probably need to adjust for more payload fields
         if (
             len(payload) == clientIdentifierLength + 1
-                        or len(payload) == clientIdentifierLength + 2
+            or len(payload) == clientIdentifierLength + 2
         ):
             log.debug("Payload ended")
             conn = ClientConnection(self.request, clientIdentifier)
             with lock:
                 connections[conn.clientIdentifier] = conn
             conn.CONNACK(consts.MQTTConnectReasonCode.SUCCESS)
-                        # somewhere here we send a CONNACK
+            # somewhere here we send a CONNACK
 
     def handle_PINGREQ(self):
         log.info("Received PINGREQ")
@@ -136,6 +133,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
         topic = str(payload[1 : 2 + topicLength], encoding="UTF-8")
         log.debug("Topic: %s", topic)
         connections[self.clientIdentifier].SUBACK(packetIdentifier, 0x00)
+
 
 class Server(socketserver.ThreadingTCPServer):
     daemon_threads = True
