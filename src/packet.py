@@ -63,14 +63,6 @@ class SUBACK(MQTTPacket):
             + len(packetIdentifier.to_bytes(2, "big"))
             + len(reason.to_bytes(1, "big"))
         )
-        print(
-            firstbyte,
-            remainingLength,
-            (packetIdentifier & 0xFF),
-            ((packetIdentifier >> 8) & 0xFF),
-            propertiesLength,
-            reason,
-        )
         return bytearray(
             (
                 firstbyte,
