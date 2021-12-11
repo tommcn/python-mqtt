@@ -54,21 +54,20 @@ class SUBACK(MQTTPacket):
         packetType = c.MQTTControlPacketType.SUBACK
         firstbyte = packetType.value << 4
         remainingLength = None
-        packetIdentifier = self.packetIdentifier + 4
-        properties = 0
+        packetIdentifier = self.packetIdentifier
         propertiesLength = 0
         reason = self.returnCode  # 0x00 for QoS 0
         remainingLength = (
-            len(propertiesLength.to_bytes(1, "big"))
-            + len(packetIdentifier.to_bytes(2, "big"))
+            len(packetIdentifier.to_bytes(2, "big"))
             + len(reason.to_bytes(1, "big"))
+            + len(propertiesLength.to_bytes(1, "big"))
         )
         return bytearray(
             (
                 firstbyte,
                 remainingLength,
-                (packetIdentifier & 0xFF),
-                ((packetIdentifier >> 8) & 0xFF),
+                packetIdentifier.to_bytes(2, "big")[0],
+                packetIdentifier.to_bytes(2, "big")[1],
                 propertiesLength,
                 reason,
             )

@@ -45,6 +45,9 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 case consts.MQTTControlPacketType.SUBSCRIBE:
                     self.handle_SUBSCRIBE(data)
 
+                case _:
+                    raise ImplementationSpecificError(f"Non implemented packet type: {consts.MQTTControlPacketType(MQTTFixedHeaderType)}")
+
     def handle_CONNECT(self, data):
         MQTTRemaingLength = data[1]
         remaining = self.request.recv(MQTTRemaingLength)
@@ -126,8 +129,8 @@ class TCPHandler(socketserver.BaseRequestHandler):
         log.debug("Packet identifier: %s", packetIdentifier)
         propertiesLength = remaining[2]
         log.debug("Properties length: %s", propertiesLength)
-        if propertiesLength != 0:
-            raise ImplementationSpecificError()
+        properties = remaining[3 : 3 + propertiesLength]
+        log.debug("Properties: %s", properties)
         payload = remaining[2 + propertiesLength + 1 :]
         topicLength = payload[0] * 256 + payload[1]
         topic = str(payload[1 : 2 + topicLength], encoding="UTF-8")
