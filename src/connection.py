@@ -1,6 +1,7 @@
 import logging
 
 from packet import CONNACK, PINGRESP, SUBACK
+from packets.publish import PublishPacket
 
 log = logging.getLogger(__name__)
 
@@ -21,3 +22,9 @@ class ClientConnection:
     def SUBACK(self, packetIdentifier, reasonCode):
         log.info("Sending SUBACK")
         self.request.send(SUBACK(packetIdentifier, reasonCode).asBytes())
+
+    def PUBLISH(self, topic, payload, packetIdentifier):
+        log.info("Sending PUBLISH with payload: %s", payload)
+        p = PublishPacket().build(topic, payload, packetIdentifier).toBytes()
+        print(list(p))
+        self.request.send(p)

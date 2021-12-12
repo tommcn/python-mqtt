@@ -1,6 +1,7 @@
 import logging
 import socketserver
 import threading
+import uuid
 
 import constants as consts
 from connection import ClientConnection
@@ -45,6 +46,10 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 case consts.MQTTControlPacketType.SUBSCRIBE:
                     self.handle_SUBSCRIBE(data)
 
+                case consts.MQTTControlPacketType.DISCONNECT:
+                    log.info("Received DISCONNECT")
+                    break
+
                 case _:
                     raise ImplementationSpecificError(f"Non implemented packet type: {consts.MQTTControlPacketType(MQTTFixedHeaderType)}")
 
@@ -88,11 +93,8 @@ class TCPHandler(socketserver.BaseRequestHandler):
         payload = remaining[11 + propertiesLength :]
         log.debug("Payload: %s", payload)
         clientIdentifierLength = payload[0]
-        if clientIdentifierLength == 0:  # Again, more inconsistencies
-            clientIdentifierLength = payload[1]
-            clientIdentifier = str(
-                payload[2 : clientIdentifierLength + 2], encoding="UTF-8"
-            )
+        if clientIdentifierLength == 0:
+            clientIdentifier = uuid.uuid4().hex
         else:
             clientIdentifier = str(
                 payload[1 : clientIdentifierLength + 1], encoding="UTF-8"
@@ -102,9 +104,11 @@ class TCPHandler(socketserver.BaseRequestHandler):
         self.clientIdentifier = clientIdentifier
 
         # probably need to adjust for more payload fields
+        # And kinda wack ngl
         if (
             len(payload) == clientIdentifierLength + 1
             or len(payload) == clientIdentifierLength + 2
+            or clientIdentifierLength == 0
         ):
             log.debug("Payload ended")
             conn = ClientConnection(self.request, clientIdentifier)
@@ -136,6 +140,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
         topic = str(payload[1 : 2 + topicLength], encoding="UTF-8")
         log.debug("Topic: %s", topic)
         connections[self.clientIdentifier].SUBACK(packetIdentifier, 0x00)
+        connections[self.clientIdentifier].PUBLISH("topic", "hello", packetIdentifier)
 
 
 class Server(socketserver.ThreadingTCPServer):
