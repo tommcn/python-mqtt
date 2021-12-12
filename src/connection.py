@@ -25,7 +25,6 @@ class ClientConnection:
     def SUBACK(self, packetIdentifier, reasonCode):
         log.info("Sending SUBACK")
         p = SubackPacket().build(packetIdentifier, reasonCode).toBytes()
-        print(list(p))
         self.request.send(p)
 
     def PUBLISH(self, topic, payload, packetIdentifier):

@@ -1,4 +1,5 @@
 import constants as c
+from helpers import intToBytes
 from packet import MQTTFixedHeader, MQTTPacket, MQTTPayload, MQTTVariableHeader
 
 
@@ -8,8 +9,8 @@ class SubackVariableHeader(MQTTVariableHeader):
 
     def toBytes(self):
         out = bytearray()
-        out.extend(self.packetIdentifier.to_bytes(2, byteorder="big"))
-        out.append(0)
+        out.extend(intToBytes(self.packetIdentifier, 2))
+        out.extend((0,))
         return out
 
 
@@ -18,7 +19,7 @@ class SubackPayload(MQTTPayload):
         self.reasonCode = reasonCode
 
     def toBytes(self):
-        return bytearray(self.reasonCode)
+        return bytearray((self.reasonCode,))
 
 
 class SubackPacket(MQTTPacket):
