@@ -26,7 +26,7 @@ class PublishPayload(MQTTPayload):
 
 class PublishPacket(MQTTPacket):
     def __init__(self, variableHeader=None, payload=None):
-        header = MQTTFixedHeader(c.MQTTControlPacketType.PUBLISH, 0x00)
+        header = MQTTFixedHeader(c.MQTTControlPacketType.PUBLISH)
         super().__init__(header)
         self.variableHeader = variableHeader
         self.payload = payload

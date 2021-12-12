@@ -72,32 +72,3 @@ class CONNECT(MQTTPacket):
 
     def handle(self, data):
         return super().handle(data)
-
-
-# class SUBACK(MQTTPacket):
-#     def __init__(self, packetIdentifier, returnCode):
-#         self.packetIdentifier = packetIdentifier
-#         self.returnCode = returnCode
-
-#     def asBytes(self):
-#         packetType = c.MQTTControlPacketType.SUBACK
-#         firstbyte = packetType.value << 4
-#         remainingLength = None
-#         packetIdentifier = self.packetIdentifier
-#         propertiesLength = 0
-#         reason = self.returnCode  # 0x00 for QoS 0
-#         remainingLength = (
-#             len(packetIdentifier.to_bytes(2, "big"))
-#             + len(reason.to_bytes(1, "big"))
-#             + len(propertiesLength.to_bytes(1, "big"))
-#         )
-#         return bytearray(
-#             (
-#                 firstbyte,
-#                 remainingLength,
-#                 packetIdentifier.to_bytes(2, "big")[0],
-#                 packetIdentifier.to_bytes(2, "big")[1],
-#                 propertiesLength,
-#                 reason,
-#             )
-#         )
