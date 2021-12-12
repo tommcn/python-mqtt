@@ -139,7 +139,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
         topicLength = payload[0] * 256 + payload[1]
         topic = str(payload[1 : 2 + topicLength], encoding="UTF-8")
         log.debug("Topic: %s", topic)
-        connections[self.clientIdentifier].SUBACK(packetIdentifier, 0x00)
+        connections[self.clientIdentifier].SUBACK(packetIdentifier, 1)
         connections[self.clientIdentifier].PUBLISH("topic", "hello", packetIdentifier)
 
 

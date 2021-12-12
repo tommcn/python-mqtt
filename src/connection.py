@@ -1,9 +1,9 @@
 import logging
 
-from packet import PINGRESP, SUBACK
 from packets.publish import PublishPacket
 from packets.connack import ConnackPacket
 from packets.pingresp import PingrespPacket
+from packets.suback import SubackPacket
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +24,9 @@ class ClientConnection:
 
     def SUBACK(self, packetIdentifier, reasonCode):
         log.info("Sending SUBACK")
-        self.request.send(SUBACK(packetIdentifier, reasonCode).asBytes())
+        p = SubackPacket().build(packetIdentifier, reasonCode).toBytes()
+        print(list(p))
+        self.request.send(p)
 
     def PUBLISH(self, topic, payload, packetIdentifier):
         log.info("Sending PUBLISH with payload: %s", payload)
