@@ -1,7 +1,8 @@
 import logging
 
-from packet import CONNACK, PINGRESP, SUBACK
+from packet import PINGRESP, SUBACK
 from packets.publish import PublishPacket
+from packets.connack import ConnackPacket
 
 log = logging.getLogger(__name__)
 
@@ -11,9 +12,10 @@ class ClientConnection:
         self.request = request
         self.clientIdentifier = clientIdentifier
 
-    def CONNACK(self, reasonCode):
+    def CONNACK(self):
         log.info("Sending CONNACK")
-        self.request.send(CONNACK(0x00, reasonCode).asBytes())
+        p = ConnackPacket().build().toBytes()
+        self.request.send(p)
 
     def PINGRESP(self):
         log.info("Sending PINGRESP")
@@ -26,5 +28,4 @@ class ClientConnection:
     def PUBLISH(self, topic, payload, packetIdentifier):
         log.info("Sending PUBLISH with payload: %s", payload)
         p = PublishPacket().build(topic, payload, packetIdentifier).toBytes()
-        print(list(p))
         self.request.send(p)

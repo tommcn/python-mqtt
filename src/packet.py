@@ -74,29 +74,6 @@ class CONNECT(MQTTPacket):
         return super().handle(data)
 
 
-class CONNACK(MQTTPacket):
-    def __init__(self, connectAcknowledgeFlags, connectReasonCode):
-        self.connectAcknowledgeFlags = connectAcknowledgeFlags
-        self.connectReasonCode = connectReasonCode
-
-    def asBytes(self):
-        packetType = c.MQTTControlPacketType.CONNACK
-        firstbyte = packetType.value << 4
-        remainingLength = None  # Cause we don't know the length yet
-        sessionPresent = False << 7  # We're assuming a clean session for now
-        connectReasonCode = self.connectReasonCode.value
-        properties = 0  # No properties for now :)
-        # Assigned Client Identifier
-        remainingLength = (
-            len(sessionPresent.to_bytes(1, "big"))
-            + len(connectReasonCode.to_bytes(1, "big"))
-            + len(properties.to_bytes(1, "big"))
-        )
-        return bytearray(
-            (firstbyte, remainingLength, sessionPresent, connectReasonCode, properties)
-        )
-
-
 class PINGRESP(MQTTPacket):
     def asBytes(self):
         return bytearray((c.MQTTControlPacketType.PINGRESP.value << 4, 0))

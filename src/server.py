@@ -114,7 +114,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
             conn = ClientConnection(self.request, clientIdentifier)
             with lock:
                 connections[conn.clientIdentifier] = conn
-            conn.CONNACK(consts.MQTTConnectReasonCode.SUCCESS)
+            conn.CONNACK()
             # somewhere here we send a CONNACK
 
     def handle_PINGREQ(self):
