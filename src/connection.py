@@ -3,6 +3,7 @@ import logging
 from packet import PINGRESP, SUBACK
 from packets.publish import PublishPacket
 from packets.connack import ConnackPacket
+from packets.pingresp import PingrespPacket
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class ClientConnection:
 
     def PINGRESP(self):
         log.info("Sending PINGRESP")
-        self.request.send(PINGRESP().asBytes())
+        self.request.send(PingrespPacket().build().toBytes())
 
     def SUBACK(self, packetIdentifier, reasonCode):
         log.info("Sending SUBACK")
