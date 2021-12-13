@@ -12,7 +12,10 @@ class PublishVariableHeader(MQTTVariableHeader):
     def toBytes(self):
         out = bytearray()
         out.extend(encodeUTF8String(self.topicName))
-        out.extend(intToBytes(self.packetID, 2))
+        # We are assuming QoS 0, so packetIdentifer is not included in packet
+        # out.extend(intToBytes(self.packetID, 2))
+
+        out.extend((0,))
         return out
 
 
