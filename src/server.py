@@ -47,9 +47,13 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 case consts.MQTTControlPacketType.SUBSCRIBE:
                     self.handle_SUBSCRIBE(data)
 
+                case consts.MQTTControlPacketType.PUBLISH:
+                    self.handle_PUBLISH(data)
+
                 case consts.MQTTControlPacketType.DISCONNECT:
                     log.info("Received DISCONNECT")
                     break
+
 
                 case _:
                     raise ImplementationSpecificError(f"Non implemented packet type: {consts.MQTTControlPacketType(MQTTFixedHeaderType)}")
@@ -145,6 +149,22 @@ class TCPHandler(socketserver.BaseRequestHandler):
             connections[self.clientIdentifier].PUBLISH("topic", random.randint(0, 100), packetIdentifier)
         connections[self.clientIdentifier].PUBLISH("topic", "hello", packetIdentifier)
 
+    def handle_PUBLISH(self, data):
+        log.info("Received PUBLISH")
+        remainingLength = data[1]
+        remaining = self.request.recv(remainingLength)
+
+        print(remaining)
+
+        topicLength = remaining[0] * 256 + remaining[1]
+        topic = str(remaining[2:2 + topicLength], encoding="UTF-8")
+        log.debug("Topic: %s", topic)
+        propertiesLength = remaining[2 + topicLength]
+        log.debug("Properties length: %s", propertiesLength)
+        if propertiesLength != 0:
+            raise ImplementationSpecificError("No support for properties")
+        payload = remaining[2 + topicLength + 1 :]
+        log.debug("Payload: %s", payload)
 
 class Server(socketserver.ThreadingTCPServer):
     daemon_threads = True
