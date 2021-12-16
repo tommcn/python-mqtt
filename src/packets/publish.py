@@ -24,7 +24,7 @@ class PublishPayload(MQTTPayload):
         self.data = data
 
     def toBytes(self):
-        return bytes(self.data, encoding="UTF-8")
+        return bytes(str(self.data), encoding="UTF-8")
 
 
 class PublishPacket(MQTTPacket):

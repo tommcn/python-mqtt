@@ -1,4 +1,5 @@
 import logging
+import random
 import socketserver
 import threading
 import uuid
@@ -140,6 +141,8 @@ class TCPHandler(socketserver.BaseRequestHandler):
         topic = str(payload[1 : 2 + topicLength], encoding="UTF-8")
         log.debug("Topic: %s", topic)
         connections[self.clientIdentifier].SUBACK(packetIdentifier, 0)
+        for _ in range(10):
+            connections[self.clientIdentifier].PUBLISH("topic", random.randint(0, 100), packetIdentifier)
         connections[self.clientIdentifier].PUBLISH("topic", "hello", packetIdentifier)
 
 
