@@ -1,8 +1,8 @@
 import logging
 
-from packets.publish import PublishPacket
 from packets.connack import ConnackPacket
 from packets.pingresp import PingrespPacket
+from packets.publish import PublishPacket
 from packets.suback import SubackPacket
 
 log = logging.getLogger(__name__)

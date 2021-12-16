@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 lock = threading.Lock()
 connections = {}  # Shhh
-subscriptions = {} # Shhh
+subscriptions = {}  # Shhh
 
 
 class TCPHandler(socketserver.BaseRequestHandler):
@@ -55,9 +55,10 @@ class TCPHandler(socketserver.BaseRequestHandler):
                     log.info("Received DISCONNECT")
                     break
 
-
                 case _:
-                    raise ImplementationSpecificError(f"Non implemented packet type: {consts.MQTTControlPacketType(MQTTFixedHeaderType)}")
+                    raise ImplementationSpecificError(
+                        f"Non implemented packet type: {consts.MQTTControlPacketType(MQTTFixedHeaderType)}"
+                    )
 
     def handle_CONNECT(self, data):
         MQTTRemaingLength = data[1]
@@ -150,18 +151,14 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 subscriptions[topic] = [connections[self.clientIdentifier]]
             else:
                 subscriptions[topic].append(connections[self.clientIdentifier])
-        print(subscriptions)
         connections[self.clientIdentifier].SUBACK(packetIdentifier, 0)
 
     def handle_PUBLISH(self, data):
         log.info("Received PUBLISH")
         remainingLength = data[1]
         remaining = self.request.recv(remainingLength)
-
-        print(remaining)
-
         topicLength = remaining[0] * 256 + remaining[1]
-        topic = str(remaining[2:2 + topicLength], encoding="UTF-8")
+        topic = str(remaining[2 : 2 + topicLength], encoding="UTF-8")
         log.debug("Topic: %s", topic)
         propertiesLength = remaining[2 + topicLength]
         log.debug("Properties length: %s", propertiesLength)
@@ -172,6 +169,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
         if topic in subscriptions.keys():
             for conn in subscriptions[topic]:
                 conn.PUBLISH(topic, payload, 0)
+
 
 class Server(socketserver.ThreadingTCPServer):
     daemon_threads = True
