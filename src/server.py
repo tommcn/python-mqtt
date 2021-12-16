@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 
 lock = threading.Lock()
 connections = {}  # Shhh
+subscriptions = {} # Shhh
 
 
 class TCPHandler(socketserver.BaseRequestHandler):
@@ -142,12 +143,15 @@ class TCPHandler(socketserver.BaseRequestHandler):
         log.debug("Properties: %s", properties)
         payload = remaining[2 + propertiesLength + 1 :]
         topicLength = payload[0] * 256 + payload[1]
-        topic = str(payload[1 : 2 + topicLength], encoding="UTF-8")
+        topic = str(payload[2 : 2 + topicLength], encoding="UTF-8")
         log.debug("Topic: %s", topic)
+        with lock:
+            if topic not in subscriptions.keys():
+                subscriptions[topic] = [connections[self.clientIdentifier]]
+            else:
+                subscriptions[topic].append(connections[self.clientIdentifier])
+        print(subscriptions)
         connections[self.clientIdentifier].SUBACK(packetIdentifier, 0)
-        for _ in range(10):
-            connections[self.clientIdentifier].PUBLISH("topic", random.randint(0, 100), packetIdentifier)
-        connections[self.clientIdentifier].PUBLISH("topic", "hello", packetIdentifier)
 
     def handle_PUBLISH(self, data):
         log.info("Received PUBLISH")
@@ -165,6 +169,9 @@ class TCPHandler(socketserver.BaseRequestHandler):
             raise ImplementationSpecificError("No support for properties")
         payload = remaining[2 + topicLength + 1 :]
         log.debug("Payload: %s", payload)
+        if topic in subscriptions.keys():
+            for conn in subscriptions[topic]:
+                conn.PUBLISH(topic, payload, 0)
 
 class Server(socketserver.ThreadingTCPServer):
     daemon_threads = True

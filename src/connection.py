@@ -27,7 +27,7 @@ class ClientConnection:
         p = SubackPacket().build(packetIdentifier, reasonCode).toBytes()
         self.request.send(p)
 
-    def PUBLISH(self, topic, payload, packetIdentifier):
+    def PUBLISH(self, topic, payload, packetIdentifier=None):
         log.info("Sending PUBLISH with payload: %s", payload)
         p = PublishPacket().build(topic, payload, packetIdentifier).toBytes()
         self.request.send(p)
